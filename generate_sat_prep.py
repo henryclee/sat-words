@@ -63,6 +63,11 @@ def generate_study_guide():
                     with open(f'{filename}_sg.pkl', 'wb') as f:
                         pickle.dump(study_guide, f)
                 print(f"Gemini failed on file: {file_idx}, word: {word_idx}, retries: {retries}")
+
+                bookmark = [file_idx, word_idx]
+                with open('./bookmark.pkl', 'wb') as f:
+                    pickle.dump(bookmark, f)
+
                 retries += 1
                 time.sleep(5)
                 continue
@@ -92,7 +97,6 @@ def generate_study_guide():
         bookmark = [len(FILENAMES), 0]
     with open('./bookmark.pkl', 'wb') as f:
             pickle.dump(bookmark, f)
-
 
 if __name__ == '__main__':
     generate_study_guide()
