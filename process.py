@@ -6,14 +6,24 @@ FILENAMES = [
     './low_freq_words'
 ]
 
-with open(f'{FILENAMES[0]}_sg.pkl', 'rb') as f:
-    study_guide = pickle.load(f)
+for filename in FILENAMES:
 
-with open(f'{FILENAMES[0]}_sg.txt', 'w') as f:
-    for k,v in study_guide.items():
-        f.write(f'Word: {k}\n')
-        f.write(f'Definition: {v['definition'].encode('ascii','ignore').decode()}\n')
-        f.write(f'Synonyms: {v['synonyms'][0]}, {v['synonyms'][1]}\n')
-        f.write(f'Sentence 1: {v['sentences'][0]}\n')
-        f.write(f'Sentence 2: {v['sentences'][1]}\n')
-        f.write('\n')
+    with open(f'{filename}_sg.pkl', 'rb') as f:
+        study_guide = pickle.load(f)
+
+    with open(f'{filename}_sg.txt', 'w') as f:
+        for k,v in study_guide.items():
+            try:
+                f.write(f'Word: {k}\n')
+                f.write(f'Definition: {v['definition']}\n')
+                f.write(f'Synonyms: {v['synonyms'][0]}, {v['synonyms'][1]}\n')
+                f.write(f'Sentence 1: {v['sentences'][0]}\n')
+                f.write(f'Sentence 2: {v['sentences'][1]}\n')
+                f.write('\n')
+            except:
+                print(f'failed on file: {f}, word: {k}')
+                print(f'Definition: {v['definition']}')
+                print(f'Synonyms: {v['synonyms'][0]}, {v['synonyms'][1]}')
+                print(f'Sentence 1: {v['sentences'][0]}')
+                print(f'Sentence 2: {v['sentences'][1]}')
+                break

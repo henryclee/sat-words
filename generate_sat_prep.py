@@ -30,6 +30,19 @@ def generate_pkl():
         with open(f'{filename}.pkl', 'wb') as f:
             pickle.dump(parsed, f)
 
+def repair_word(file_idx, word):
+    filename = FILENAMES[file_idx]
+    with open(f'{filename}_sg.pkl', 'rb') as f:
+                study_guide = pickle.load(f)
+    gemini_answer = gem.get_word_info(word=word)
+    study_guide[word] = {
+        'definition' : gemini_answer.definition,
+        'synonyms' : gemini_answer.synonyms,
+        'sentences' : gemini_answer.sentences
+            }
+    with open(f'{filename}_sg.pkl', 'wb') as f:
+        pickle.dump(study_guide, f)
+
 def generate_study_guide():
     if not os.path.exists('./bookmark.pkl'):
         bookmark = [0,0]
@@ -99,4 +112,5 @@ def generate_study_guide():
             pickle.dump(bookmark, f)
 
 if __name__ == '__main__':
-    generate_study_guide()
+    # generate_study_guide()
+    repair_word(2, 'rudimentary')

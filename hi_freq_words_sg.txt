@@ -1505,10 +1505,10 @@ Sentence 1: She was hesitant to invest in the risky venture, fearing potential l
 Sentence 2: He remained hesitant about accepting the promotion, unsure if he was ready for the added responsibility.
 
 Word: impulsive
-Definition: Acting or done without forethought; characterized by sudden and  action.
+Definition: Acting or done without forethought; characterized by sudden and spontaneous inclination or motivation.
 Synonyms: Spontaneous, Impetuous
-Sentence 1: Her impulsive decision to quit her job and travel the world surprised everyone, but she felt it was the right thing to do.
-Sentence 2: Buying a car without doing any research was an impulsive act he later regretted.
+Sentence 1: Her impulsive decision to quit her job and travel the world surprised everyone, but she claimed she needed a change of pace.
+Sentence 2: Buying the sports car was an impulsive purchase that he immediately regretted when the bills started piling up.
 
 Word: infrequent
 Definition: Occurring rarely or seldom.
