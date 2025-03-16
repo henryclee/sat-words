@@ -13,8 +13,8 @@ The code is a little sloppy, since this was meant to be a one-time use tool, but
 
 The text files with the output are:
 
-hi_freq_words_sg.txt
+./study_guide/hi_freq_words_sg.txt
 
-med_freq_words_sg.txt
+./study_guide/med_freq_words_sg.txt
 
-low_freq_words_sg.txt
+./study_guide/low_freq_words_sg.txt
