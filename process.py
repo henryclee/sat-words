@@ -1,17 +1,17 @@
 import pickle
 
 FILENAMES = [
-    './hi_freq_words',
-    './med_freq_words',
-    './low_freq_words'
+    'hi_freq_words',
+    'med_freq_words',
+    'low_freq_words'
 ]
 
 for filename in FILENAMES:
 
-    with open(f'{filename}_sg.pkl', 'rb') as f:
+    with open(f'./{filename}_sg.pkl', 'rb') as f:
         study_guide = pickle.load(f)
 
-    with open(f'{filename}_sg.txt', 'w') as f:
+    with open(f'./study_guide/{filename}_sg.txt', 'w') as f:
         for k,v in study_guide.items():
             try:
                 f.write(f'Word: {k}\n')
