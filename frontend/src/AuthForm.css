@@ -1,0 +1,80 @@
+/* Global styles */
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to right, #4A90E2, #1E3C72);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+  
+  /* Centering the authentication form */
+  .auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+  
+  /* Card-style form */
+  .auth-card {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+  }
+  
+  /* Form inputs */
+  input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+  
+  /* Button styles */
+  button {
+    width: 100%;
+    padding: 12px;
+    background-color: #4A90E2;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  button:hover {
+    background-color: #357ABD;
+  }
+  
+  /* Error messages */
+  .error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+  }
+  
+  /* Switch between login/register */
+  .auth-switch {
+    margin-top: 15px;
+    font-size: 14px;
+  }
+  
+  .auth-switch a {
+    color: #4A90E2;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  .auth-switch a:hover {
+    text-decoration: underline;
+  }
+  

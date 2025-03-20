@@ -9,12 +9,12 @@ However, I find that studying vocabulary words in the format word / synonym / de
 
 I made a basic tool that queries Gemini's free API to generate 2 sentences for each word in the list. I specifically prompted the API to generate sentences that are not only memorable, but also use the word in the sentence such that the meaning is clear from the context of the sentence.
 
-The code is a little sloppy, since this was meant to be a one-time use tool, but hopefully other people might find this to be a useful resource.
-
 The text files with the output are:
 
-./study_guide/hi_freq_words_sg.txt
+./sat_words_tools/study_guide/hi_freq_words_sg.txt
 
-./study_guide/med_freq_words_sg.txt
+./sat_words_tools/study_guide/med_freq_words_sg.txt
 
-./study_guide/low_freq_words_sg.txt
+./sat_words_tools/study_guide/low_freq_words_sg.txt
+
+I'm also working on making this into a fullstack project, so it can be accessed via a locally hosted website
