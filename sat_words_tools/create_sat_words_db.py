@@ -10,11 +10,16 @@ FILENAMES = [
 conn = sqlite3.connect('../backend/database/sat_words.db')
 cursor = conn.cursor()
 
+dictionary = set()
+
 for i, filename in enumerate(FILENAMES):
     with open (f'./{filename}_sg.pkl', 'rb') as sg:
         study_guide = pickle.load(sg)
     
     for word, info in study_guide.items():
+        if word in dictionary:
+            continue
+        dictionary.add(word)
         definition = info['definition']
         synonym1, synonym2 = info['synonyms'][:2]
         sentence1, sentence2 = info['sentences'][:2]
