@@ -4,9 +4,11 @@ from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_cors import CORS
 import random
+from sqlalchemy import UniqueConstraint
+import os
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database/database.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{os.path.abspath('database/sat_words.db')}"
 app.config["JWT_SECRET_KEY"] = "supersecretkey"  # Change this for production security
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
@@ -14,21 +16,33 @@ jwt = JWTManager(app)
 CORS(app)  # Allows React to talk to Flask
 
 # Database models
-class User(db.Model):
+class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
 
-class Word(db.Model):
+class Dictionary(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String(50), unique=True, nullable=False)
     definition = db.Column(db.Text, nullable=False)
+    synonym1 = db.Column(db.Text, nullable=False)
+    synonym2 = db.Column(db.Text, nullable=False)
+    sentence1 = db.Column(db.Text, nullable=False)
+    sentence2 = db.Column(db.Text, nullable=False)
+    frequency = db.Column(db.Integer, nullable=False)
 
 class UserProgress(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    word_id = db.Column(db.Integer, db.ForeignKey('word.id'), nullable=False)
-    recall_score = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    word_id = db.Column(db.Integer, db.ForeignKey('dictionary.id'), nullable=False)
+    n = db.Column(db.Integer, nullable=False)
+    interval = db.Column(db.Integer, nullable=False)
+    EF = db.Column(db.Float, nullable=False)
+    due_date = db.Column(db.String(20), nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint('user_id', 'word_id', name='uix_user_word'),  # Ensures unique pair of user_id and word_id
+    )
 
 # Create tables (run once)
 with app.app_context():
