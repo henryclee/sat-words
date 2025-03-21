@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { AuthContext } from "./AuthContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
 import "./AuthForm.css"; // Import the CSS file
 
 const AuthForm = ({ isLogin }) => {
@@ -8,6 +8,7 @@ const AuthForm = ({ isLogin }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,8 +21,10 @@ const AuthForm = ({ isLogin }) => {
     });
 
     const data = await response.json();
+    
     if (response.ok && isLogin) {
       login(data.token);
+      navigate("/"); // ✅ Redirect user to VocabularyApp after login
     } else {
       setMessage(data.message);
     }

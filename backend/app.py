@@ -6,14 +6,17 @@ from flask_cors import CORS
 import random
 from sqlalchemy import UniqueConstraint
 import os
+from datetime import timedelta
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{os.path.abspath('database/sat_words.db')}"
+app.config["JWT_VERIFY_SUB"]=False
 app.config["JWT_SECRET_KEY"] = "supersecretkey"  # Change this for production security
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
-CORS(app)  # Allows React to talk to Flask
+# CORS(app)  # Allows React to talk to Flask
+CORS(app, supports_credentials=True, allow_headers=["Authorization", "Content-Type"])
 
 # Database models
 class Users(db.Model):
@@ -45,8 +48,8 @@ class UserProgress(db.Model):
     )
 
 # Create tables (run once)
-with app.app_context():
-    db.create_all()
+# with app.app_context():
+#     db.create_all()
 
 # User registration
 @app.route("/api/register", methods=["POST"])
@@ -55,11 +58,11 @@ def register():
     username = data.get("username")
     password = data.get("password")
 
-    if User.query.filter_by(username=username).first():
+    if Users.query.filter_by(username=username).first():
         return jsonify({"message": "User already exists"}), 400
 
     hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
-    new_user = User(username=username, password_hash=hashed_password)
+    new_user = Users(username=username, password_hash=hashed_password)
     db.session.add(new_user)
     db.session.commit()
 
@@ -72,7 +75,7 @@ def login():
     username = data.get("username")
     password = data.get("password")
 
-    user = User.query.filter_by(username=username).first()
+    user = Users.query.filter_by(username=username).first()
     if not user or not bcrypt.check_password_hash(user.password_hash, password):
         return jsonify({"message": "Invalid credentials"}), 401
 
@@ -83,24 +86,32 @@ def login():
 @app.route("/api/word", methods=["GET"])
 @jwt_required()
 def get_word():
+
+    print("Headers:", request.headers)  # Debugging headers
     user_id = get_jwt_identity()
     
     # Fetch words the user hasn't reviewed yet
     reviewed_words = db.session.query(UserProgress.word_id).filter_by(user_id=user_id).subquery()
-    word = Word.query.filter(~Word.id.in_(reviewed_words)).order_by(db.func.random()).first()
+    word = Dictionary.query.filter(~Dictionary.id.in_(reviewed_words)).order_by(Dictionary.frequency, db.func.random()).first()
 
     if word:
         return jsonify({"word": word.word})
     else:
         return jsonify({"message": "No new words available"}), 404
 
-# Get word definition (protected)
+# Get word definition
 @app.route("/api/definition/<word>", methods=["GET"])
 @jwt_required()
 def get_definition(word):
-    word_entry = Word.query.filter_by(word=word).first()
+    word_entry = Dictionary.query.filter_by(word=word).first()
     if word_entry:
-        return jsonify({"definition": word_entry.definition})
+        return jsonify({
+            "definition": word_entry.definition,
+            "synonym1" : word_entry.synonym1,
+            "synonym2" : word_entry.synonym2,
+            "sentence1" : word_entry.sentence1,
+            "sentence2" : word_entry.sentence2,
+        })
     return jsonify({"message": "Word not found"}), 404
 
 # Submit recall rating (protected)
@@ -112,7 +123,7 @@ def submit_rating():
     word = data.get("word")
     rating = data.get("rating")
 
-    word_entry = Word.query.filter_by(word=word).first()
+    word_entry = Dictionary.query.filter_by(word=word).first()
     if not word_entry:
         return jsonify({"message": "Word not found"}), 404
 
