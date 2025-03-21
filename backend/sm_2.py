@@ -28,9 +28,9 @@ def sm_2(q: int, n: int, EF: int, interval: int):
         n = 0
         interval = 1
         
-    EF += 0.1-(5-q)*(0.08+(5-q)*0.02) # Formulat from SM-2
-    EF = min(1.3, EF)
-    EF = max(2.5, EF)
+    EF += 0.1-(5-q)*(0.08+(5-q)*0.02) # Formula from SM-2
+    EF = max(1.3, EF)
+    EF = min(2.5, EF)
     interval = min(interval, MAX_INTERVAL) # Constrain interval
 
     return [n, EF, interval]

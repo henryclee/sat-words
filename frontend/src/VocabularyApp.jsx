@@ -102,7 +102,7 @@ const VocabularyApp = () => {
               {definition.definition} <br/>
               <b>Synonyms:</b><br/> 
               {definition.synonym1}, {definition.synonym2} <br/>
-              <b>Context</b><br/>
+              <b>Context:</b><br/>
               <span dangerouslySetInnerHTML={{ __html: definition.sentence1 }} /><br/>
               <span dangerouslySetInnerHTML={{ __html: definition.sentence2 }} />
             </p>
