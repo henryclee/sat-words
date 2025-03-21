@@ -96,15 +96,25 @@ const VocabularyApp = () => {
         <div className="word-display">{word || "Loading..."}</div>
 
         {definition ? (
-          <p className="definition">
-            <b>Definition:</b><br/> 
-            {definition.definition} <br/>
-            <b>Synonyms:</b><br/> 
-            {definition.synonym1}, {definition.synonym2} <br/>
-            <b>Context</b><br/>
-            <span dangerouslySetInnerHTML={{ __html: definition.sentence1 }} /><br/>
-            <span dangerouslySetInnerHTML={{ __html: definition.sentence2 }} />
-          </p>
+          <div>
+            <p className="definition">
+              <b>Definition:</b><br/> 
+              {definition.definition} <br/>
+              <b>Synonyms:</b><br/> 
+              {definition.synonym1}, {definition.synonym2} <br/>
+              <b>Context</b><br/>
+              <span dangerouslySetInnerHTML={{ __html: definition.sentence1 }} /><br/>
+              <span dangerouslySetInnerHTML={{ __html: definition.sentence2 }} />
+            </p>
+            <p>How difficult was it to recall?</p>
+            <div className="button-group">
+              {[0, 1, 2, 3, 4, 5].map((num) => (
+                <button key={num} className="btn secondary" onClick={() => submitRecallRating(num)}>
+                  {num}
+                </button>
+              ))}
+            </div>
+          </div>
         ) : (
           <button className="btn primary" onClick={revealDefinition}>
             Reveal Definition
@@ -112,14 +122,7 @@ const VocabularyApp = () => {
         )}
 
         <div className="difficulty-section">
-          <p>How difficult was it to recall?</p>
-          <div className="button-group">
-            {[0, 1, 2, 3, 4, 5].map((num) => (
-              <button key={num} className="btn secondary" onClick={() => submitRecallRating(num)}>
-                {num}
-              </button>
-            ))}
-          </div>
+          <p>Difficulty scale:</p>
           <ol start="0">
             <li>I had no idea</li>
             <li>I've seen it before, but don't know the meaning</li>
