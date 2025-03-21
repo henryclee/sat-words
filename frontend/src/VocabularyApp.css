@@ -88,6 +88,16 @@ h1 {
   background-color: #1e7e34;
 }
 
+.logout {
+  background-color: rgb(190, 0, 0);
+  color: white;
+  margin-top: 15px;
+}
+
+.logout:hover {
+  background-color: darkred;
+}
+
 .session-info {
   margin-top: 15px;
   font-size: 14px;

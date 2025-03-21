@@ -10,11 +10,13 @@ const AuthForm = ({ isLogin }) => {
   const [message, setMessage] = useState("");
   const navigate = useNavigate(); // Initialize useNavigate
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const endpoint = isLogin ? "login" : "register";
     
-    const response = await fetch(`http://localhost:5000/api/${endpoint}`, {
+    const response = await fetch(`${API_BASE_URL}/api/${endpoint}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
@@ -33,6 +35,7 @@ const AuthForm = ({ isLogin }) => {
   return (
     <div className="auth-container">
       <div className="auth-card">
+        <h1> SAT Vocabulary Review </h1>
         <h2>{isLogin ? "Login" : "Register"}</h2>
         <form onSubmit={handleSubmit}>
           <input

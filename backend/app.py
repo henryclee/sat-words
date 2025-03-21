@@ -3,20 +3,25 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_cors import CORS
-import random
 from sqlalchemy import UniqueConstraint
 import os
-from datetime import timedelta
+import datetime
+from sm_2 import sm_2
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{os.path.abspath('database/sat_words.db')}"
 app.config["JWT_VERIFY_SUB"]=False
 app.config["JWT_SECRET_KEY"] = "supersecretkey"  # Change this for production security
+# app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 # CORS(app)  # Allows React to talk to Flask
-CORS(app, supports_credentials=True, allow_headers=["Authorization", "Content-Type"])
+# CORS(app, supports_credentials=True, allow_headers=["Authorization", "Content-Type"])
+# CORS(app, supports_credentials=True, resources={r"/*": {"origins": "http://localhost:5173"}})
+CORS(app, supports_credentials=True, resources={r"/*": {"origins": "*"}})  # Allow all origins for simplicity
+
+
 
 # Database models
 class Users(db.Model):
@@ -86,18 +91,40 @@ def login():
 @app.route("/api/word", methods=["GET"])
 @jwt_required()
 def get_word():
-
-    print("Headers:", request.headers)  # Debugging headers
     user_id = get_jwt_identity()
-    
-    # Fetch words the user hasn't reviewed yet
-    reviewed_words = db.session.query(UserProgress.word_id).filter_by(user_id=user_id).subquery()
-    word = Dictionary.query.filter(~Dictionary.id.in_(reviewed_words)).order_by(Dictionary.frequency, db.func.random()).first()
 
-    if word:
-        return jsonify({"word": word.word})
+    # First, get the next word from the database based on due dates
+    next_word_query = db.session.query(
+        UserProgress.word_id, UserProgress.due_date
+        ).filter_by(user_id=user_id).order_by(
+            UserProgress.due_date, db.func.random()
+        ).first()
+    
+    if next_word_query:
+        next_word_id, due_date = next_word_query
     else:
-        return jsonify({"message": "No new words available"}), 404
+        next_word_id, due_date = None, None
+    
+    # If this word is not yet due, try to find a new word that hasn't been reviewed yet    
+    if not next_word_query or datetime.datetime.strptime(due_date, "%Y-%m-%d").date() > datetime.date.today():
+        reviewed_words = db.session.query(UserProgress.word_id).filter_by(user_id=user_id).subquery()
+        new_word = Dictionary.query.filter(
+            ~Dictionary.id.in_(reviewed_words)
+            ).order_by(
+                Dictionary.frequency, db.func.random()
+            ).first().word
+        if new_word:
+            return jsonify({"word": new_word})
+
+    next_word = Dictionary.query.get(next_word_id)
+    return jsonify({"word": next_word.word})
+
+    # reviewed_words = db.session.query(UserProgress.word_id).filter_by(user_id=user_id).subquery()
+    # new_word = Dictionary.query.filter(~Dictionary.id.in_(reviewed_words)).order_by(Dictionary.frequency, db.func.random()).first()
+    # if new_word:
+    #     return jsonify({"word": new_word.word})
+    # else:
+    #     return jsonify({"message": "No new words to review"}), 404
 
 # Get word definition
 @app.route("/api/definition/<word>", methods=["GET"])
@@ -121,21 +148,50 @@ def submit_rating():
     data = request.json
     user_id = get_jwt_identity()
     word = data.get("word")
-    rating = data.get("rating")
+    q = data.get("rating")
 
     word_entry = Dictionary.query.filter_by(word=word).first()
     if not word_entry:
         return jsonify({"message": "Word not found"}), 404
-
+    
     user_progress = UserProgress.query.filter_by(user_id=user_id, word_id=word_entry.id).first()
-    if user_progress:
-        user_progress.recall_score = rating  # Update existing rating
+
+    if not user_progress:
+        n = -1 # First time we're seeing the word
+        interval = 0
+        EF = 2.5 # Default value
     else:
-        new_progress = UserProgress(user_id=user_id, word_id=word_entry.id, recall_score=rating)
+        n = user_progress.n
+        interval = user_progress.interval
+        EF = user_progress.EF
+
+    new_n, new_EF, new_interval = sm_2(q, n, EF, interval)
+    # due_date = datetime.date.today() + datetime.timedelta(days=new_interval)
+    due_date = (datetime.date.today() + datetime.timedelta(days=new_interval)).strftime("%Y-%m-%d")
+
+    new_progress = UserProgress(
+        user_id=user_id, word_id=word_entry.id, n=new_n, interval=new_interval, EF=new_EF, due_date=due_date
+    )   
+
+    if not user_progress:
         db.session.add(new_progress)
+    else:
+        UserProgress.query.filter_by(user_id=user_id, word_id=word_entry.id).update(
+            {UserProgress.n: new_n, UserProgress.interval: new_interval, UserProgress.EF: new_EF, UserProgress.due_date: due_date}
+        )
 
     db.session.commit()
-    return jsonify({"message": "Rating submitted"}), 200
+
+    return jsonify({
+        "message": "Rating submitted",
+        "word" : word,
+        "new_n" : new_n,
+        "new_EF" : new_EF,
+        "new_interval" : new_interval,
+        "due_date" : due_date
+    }), 200
+
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
