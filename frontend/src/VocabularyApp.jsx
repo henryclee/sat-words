@@ -6,6 +6,7 @@ const VocabularyApp = () => {
   const [word, setWord] = useState(null);
   const [definition, setDefinition] = useState(null);
   const [reviewCount, setReviewCount] = useState(0);
+  const [showScale, setShowScale] = useState(false);
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -82,6 +83,10 @@ const VocabularyApp = () => {
     fetchNewWord();
   };
 
+  const handleShowScale = () => {
+    setShowScale(!showScale);
+  }
+
   const handleLogout = () => {
     console.warn("Logging out...");
     localStorage.removeItem("token"); // Remove token
@@ -103,10 +108,10 @@ const VocabularyApp = () => {
               <b>Synonyms:</b><br/> 
               {definition.synonym1}, {definition.synonym2} <br/>
               <b>Context:</b><br/>
-              <span dangerouslySetInnerHTML={{ __html: definition.sentence1 }} /><br/>
-              <span dangerouslySetInnerHTML={{ __html: definition.sentence2 }} />
+              1. <span dangerouslySetInnerHTML={{ __html: definition.sentence1 }} /><br/>
+              2. <span dangerouslySetInnerHTML={{ __html: definition.sentence2 }} />
             </p>
-            <p>How difficult was it to recall?</p>
+            <p>How difficult was it to recall the word <b>{word}</b>?</p>
             <div className="button-group">
               {[0, 1, 2, 3, 4, 5].map((num) => (
                 <button key={num} className="btn secondary" onClick={() => submitRecallRating(num)}>
@@ -121,19 +126,23 @@ const VocabularyApp = () => {
           </button>
         )}
 
-        <div className="difficulty-section">
-          <p>Difficulty scale:</p>
-          <ol start="0">
-            <li>I had no idea</li>
-            <li>I've seen it before, but don't know the meaning</li>
-            <li>I thought I knew it, but was incorrect</li>
-            <li>I vaguely knew the definition</li>
-            <li>I had a pretty good idea, but still learned something</li> 
-            <li>I knew it instantly and confidently</li>
-          </ol>
-        </div>
-
-        {/* <button className="btn success" onClick={fetchNewWord}>Next Word</button> */}
+        {showScale ? (
+          <div className="difficulty-section">
+            <button className="show_scale success" onClick={handleShowScale}>Hide Difficulty Scale</button>
+            <ol start="0">
+              <li>I had no idea</li>
+              <li>I've seen it before, but don't know the meaning</li>
+              <li>I thought I knew it, but was incorrect</li>
+              <li>I vaguely knew the definition</li>
+              <li>I had a pretty good idea, but still learned something</li> 
+              <li>I knew it instantly and confidently</li>
+            </ol>
+          </div>
+        ) : (
+          <div className="difficulty-section">
+            <button className="show_scale success" onClick={handleShowScale}>Show Difficulty Scale</button>
+          </div>
+        )}  
         <button className="logout-button logout" onClick={handleLogout}>Logout</button>
 
         <p className="session-info">Words reviewed this session: {reviewCount}</p>
